@@ -5,20 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ABHI'S ALGO V9.8</title>
     <style>
+        /* CSS Waisa hi hai jaisa humne pehle set kiya tha */
         body { background-color: #ffffff; color: #000; font-family: sans-serif; margin: 0; padding: 10px; }
         .main-container { max-width: 400px; margin: auto; }
         h1 { color: #000; font-size: 22px; text-align: center; margin-bottom: 5px; font-weight: bold; }
         .sub-text { color: #00ff88; font-size: 12px; text-align: center; margin-bottom: 20px; font-weight: bold; }
         .box { background: #1a1a1a; padding: 15px; border-radius: 12px; margin-bottom: 10px; color: #fff; text-align: center; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; color: #fff; }
-        select { width: 100%; background: #1a1a1a; color: #fff; border: 1px solid #444; padding: 10px; border-radius: 5px; cursor: pointer; text-align-last: center; font-size: 16px; }
-        .signal-box { font-size: 18px; font-weight: bold; }
-        .trend-grid { display: flex; justify-content: space-between; margin-bottom: 5px; }
-        
-        /* New Prediction Bar Styles */
-        .prediction-container { width: 100%; height: 12px; background: #ff4444; border-radius: 6px; display: flex; overflow: hidden; margin-top: 10px; }
-        .pred-green { width: 54%; background: #00ff00; }
-        .pred-red { width: 46%; background: #ff4444; }
+        select { width: 100%; background: #1a1a1a; color: #fff; border: 1px solid #444; padding: 10px; border-radius: 5px; text-align-last: center; font-size: 16px; }
+        .signal-box { font-size: 18px; font-weight: bold; padding: 20px; }
     </style>
 </head>
 <body>
@@ -26,17 +20,17 @@
 <div class="main-container">
     <h1>ABHI'S ALGO V9.8</h1>
     <div class="sub-text">PURE ACTION SIGNALS ARRAY</div>
-
+    
     <div class="box" id="time-display">Loading...</div>
     <div class="box">⚡ MARKET CANDLE CLOCK: <span id="clock">00:00</span></div>
-
+    
     <div class="box">
         <label>SELECT ASSET:</label>
         <select id="asset">
-            <option>EUR/USD</option>
-            <option>GBP/USD</option>
-            <option>USD/JPY</option>
-            <option>AUD/USD</option>
+            <option value="EUR/USD">EUR/USD</option>
+            <option value="GBP/USD">GBP/USD</option>
+            <option value="USD/JPY">USD/JPY</option>
+            <option value="AUD/USD">AUD/USD</option>
         </select>
     </div>
 
@@ -48,53 +42,31 @@
         </select>
     </div>
 
-    <div class="box signal-box" id="signal-display">AVOID NO TRADE 🟡</div>
+    <!-- Signal Display yahan update hoga -->
+    <div class="box signal-box" id="signal-display">FETCHING SIGNAL...</div>
 
-    <!-- Prediction Bar -->
-    <div class="box">
-        <div style="display:flex; justify-content:space-between; font-size: 12px;">
-            <span>CALL: 54%</span> <span>PUT: 46%</span>
-        </div>
-        <div class="prediction-container">
-            <div class="pred-green"></div>
-            <div class="pred-red"></div>
-        </div>
-    </div>
+    <script>
+        // Backend se signal laane ka logic
+        async function fetchSignal() {
+            let asset = document.getElementById('asset').value;
+            let timeframe = document.getElementById('timeframe').value;
+            
+            try {
+                let response = await fetch(`/get_signal/${asset}/${timeframe}`);
+                let data = await response.json();
+                document.getElementById('signal-display').innerText = data.signal + " " + data.icon;
+            } catch (e) {
+                document.getElementById('signal-display').innerText = "SERVER ISSUE ⚪";
+            }
+        }
 
-    <div class="box">
-        <div class="trend-grid"><span>M1 (1 Min)</span> <span style="color:red">Bearish 🔴</span></div>
-        <div class="trend-grid"><span>M5 (5 Min)</span> <span style="color:green">Bullish 🟢</span></div>
-    </div>
-</div>
-
-<script>
-    function updateLiveTime() {
-        const now = new Date();
-        document.getElementById('time-display').innerText = now.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
-    }
-    setInterval(updateLiveTime, 1000);
-
-    function updateCandleClock() {
-        const now = new Date();
-        const timeframe = parseInt(document.getElementById('timeframe').value);
-        const minutes = now.getMinutes();
-        const seconds = now.getSeconds();
-        let remainingSeconds = (timeframe === 1) ? (60 - seconds) : (((5 - (minutes % 5)) * 60) - seconds);
-        document.getElementById('clock').innerText = 
-            Math.floor(remainingSeconds / 60).toString().padStart(2, '0') + ":" + (remainingSeconds % 60).toString().padStart(2, '0');
-    }
-    setInterval(updateCandleClock, 1000);
-</script>
-
+        // Har 5 second mein signal update karega
+        setInterval(fetchSignal, 5000);
+        
+        // Time update logic
+        setInterval(() => {
+            document.getElementById('time-display').innerText = new Date().toLocaleString();
+        }, 1000);
+    </script>
 </body>
 </html>
-async function updateSignal() {
-    let asset = document.getElementById('asset').value;
-    let timeframe = document.getElementById('timeframe').value.split(' ')[0]; // 1 or 5
-    
-    let response = await fetch(`/get_signal/${asset}/${timeframe}`);
-    let data = await response.json();
-    
-    document.getElementById('signal-display').innerText = data.signal + " " + data.icon;
-}
-setInterval(updateSignal, 5000); // Har 5 second mein real signal update
