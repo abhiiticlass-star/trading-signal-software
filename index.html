@@ -1,72 +1,31 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ABHI'S ALGO V9.8</title>
     <style>
-        /* CSS Waisa hi hai jaisa humne pehle set kiya tha */
-        body { background-color: #ffffff; color: #000; font-family: sans-serif; margin: 0; padding: 10px; }
-        .main-container { max-width: 400px; margin: auto; }
-        h1 { color: #000; font-size: 22px; text-align: center; margin-bottom: 5px; font-weight: bold; }
-        .sub-text { color: #00ff88; font-size: 12px; text-align: center; margin-bottom: 20px; font-weight: bold; }
-        .box { background: #1a1a1a; padding: 15px; border-radius: 12px; margin-bottom: 10px; color: #fff; text-align: center; }
-        select { width: 100%; background: #1a1a1a; color: #fff; border: 1px solid #444; padding: 10px; border-radius: 5px; text-align-last: center; font-size: 16px; }
-        .signal-box { font-size: 18px; font-weight: bold; padding: 20px; }
+        body { background: #000; color: #fff; font-family: sans-serif; text-align: center; padding: 20px; }
+        .box { background: #1a1a1a; padding: 20px; border-radius: 15px; margin: 10px; border: 1px solid #333; }
+        .signal { font-size: 24px; font-weight: bold; margin: 20px 0; }
+        select { width: 100%; padding: 10px; border-radius: 5px; background: #333; color: #fff; }
     </style>
 </head>
 <body>
-
-<div class="main-container">
     <h1>ABHI'S ALGO V9.8</h1>
-    <div class="sub-text">PURE ACTION SIGNALS ARRAY</div>
-    
-    <div class="box" id="time-display">Loading...</div>
-    <div class="box">⚡ MARKET CANDLE CLOCK: <span id="clock">00:00</span></div>
-    
     <div class="box">
-        <label>SELECT ASSET:</label>
-        <select id="asset">
-            <option value="EUR/USD">EUR/USD</option>
-            <option value="GBP/USD">GBP/USD</option>
-            <option value="USD/JPY">USD/JPY</option>
-            <option value="AUD/USD">AUD/USD</option>
-        </select>
+        <select id="asset"><option>EUR/USD</option><option>GBP/USD</option><option>USD/JPY</option></select>
+        <select id="tf" style="margin-top:10px;"><option value="1">1 Min</option><option value="5">5 Min</option></select>
     </div>
-
-    <div class="box">
-        <label>TIMEFRAME:</label>
-        <select id="timeframe">
-            <option value="1">1 Minute</option>
-            <option value="5">5 Minute</option>
-        </select>
-    </div>
-
-    <!-- Signal Display yahan update hoga -->
-    <div class="box signal-box" id="signal-display">FETCHING SIGNAL...</div>
-
+    <div class="box signal" id="signal-display">CALCULATING...</div>
     <script>
-        // Backend se signal laane ka logic
-        async function fetchSignal() {
+        async function update() {
             let asset = document.getElementById('asset').value;
-            let timeframe = document.getElementById('timeframe').value;
-            
-            try {
-                let response = await fetch(`/get_signal/${asset}/${timeframe}`);
-                let data = await response.json();
-                document.getElementById('signal-display').innerText = data.signal + " " + data.icon;
-            } catch (e) {
-                document.getElementById('signal-display').innerText = "SERVER ISSUE ⚪";
-            }
+            let tf = document.getElementById('tf').value;
+            let res = await fetch(`/get_signal/${asset}/${tf}`);
+            let data = await res.json();
+            document.getElementById('signal-display').innerHTML = data.signal + " " + data.icon;
         }
-
-        // Har 5 second mein signal update karega
-        setInterval(fetchSignal, 5000);
-        
-        // Time update logic
-        setInterval(() => {
-            document.getElementById('time-display').innerText = new Date().toLocaleString();
-        }, 1000);
+        setInterval(update, 3000);
+        update();
     </script>
 </body>
 </html>
