@@ -88,3 +88,13 @@
 
 </body>
 </html>
+async function updateSignal() {
+    let asset = document.getElementById('asset').value;
+    let timeframe = document.getElementById('timeframe').value.split(' ')[0]; // 1 or 5
+    
+    let response = await fetch(`/get_signal/${asset}/${timeframe}`);
+    let data = await response.json();
+    
+    document.getElementById('signal-display').innerText = data.signal + " " + data.icon;
+}
+setInterval(updateSignal, 5000); // Har 5 second mein real signal update
